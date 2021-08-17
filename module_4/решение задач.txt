@@ -1,0 +1,304 @@
+
+Задача 4.1
+
+SELECT count(a.city) city_cnt,
+       a.city
+FROM dst_project.airports a
+GROUP BY city
+ORDER BY city_cnt DESC
+
+Задача 4.2.1
+
+SELECT count(DISTINCT f.status) status_cnt
+FROM dst_project.flights f
+
+Задача 4.2.2
+
+SELECT count(f.status) status_cnt
+FROM dst_project.flights f
+WHERE f.status = 'Departed'
+
+Задача 4.2.3
+
+SELECT count(s.seat_no)
+FROM dst_project.seats s
+WHERE aircraft_code = '773'
+
+Задача 4.2.4
+
+SELECT count(f.flight_no)
+FROM dst_project.flights f
+WHERE date_trunc('month', f.scheduled_arrival) BETWEEN '2017-04-01' AND '2017-09-01'
+  AND f.status = 'Arrived'
+
+Задача 4.3.1
+
+SELECT count(f.flight_no)
+FROM dst_project.flights f
+WHERE f.status = 'Cancelled'
+
+Задача 4.3.2
+
+SELECT count(ac.model)
+FROM dst_project.aircrafts ac
+WHERE ac.model like 'Boeing%'
+
+SELECT count(ac.model)
+FROM dst_project.aircrafts ac
+WHERE ac.model like 'Sukhoi%'
+
+SELECT count(ac.model)
+FROM dst_project.aircrafts ac
+WHERE ac.model like 'Airbus%'
+
+Задача 4.3.3
+
+SELECT count(a.airport_code)
+FROM dst_project.airports a
+WHERE a.timezone like 'Asia%'
+
+SELECT count(a.airport_code)
+FROM dst_project.airports a
+WHERE a.timezone like 'Europe%'
+
+Задача 4.3.4
+
+SELECT f.actual_arrival - f.scheduled_arrival delay,
+       f.flight_id
+FROM dst_project.flights f
+WHERE f.actual_arrival IS NOT NULL
+ORDER BY delay DESC
+LIMIT 1
+
+Задача 4.4.1
+
+SELECT f.scheduled_departure
+FROM dst_project.flights f
+ORDER BY f.scheduled_departure
+LIMIT 1
+
+Задача 4.4.2
+
+SELECT date_part('hour', q.max_fly_time) * 60 + date_part('minute', q.max_fly_time) max_fly_time_minute
+FROM
+  (SELECT f.scheduled_arrival - f.scheduled_departure max_fly_time
+   FROM dst_project.flights f
+   ORDER BY max_fly_time DESC
+   LIMIT 1) q
+
+Задача 4.4.3
+
+SELECT f.scheduled_arrival - f.scheduled_departure fly_time,
+       f.departure_airport,
+       f.arrival_airport
+FROM dst_project.flights f
+ORDER BY fly_time DESC
+LIMIT 1
+
+Задача 4.4.4
+
+SELECT date_part('hour', q.avg_fly_time) * 60 + date_part('minute', q.avg_fly_time) avg_fly_time_minute
+FROM
+  (SELECT avg(f.scheduled_arrival - f.scheduled_departure) avg_fly_time
+   FROM dst_project.flights f) q
+
+Задача 4.5.1
+
+SELECT s.fare_conditions,
+       count(s.fare_conditions) fare_conditions_cnt
+FROM dst_project.seats s
+WHERE aircraft_code = 'SU9'
+GROUP BY s.fare_conditions
+ORDER BY s.fare_conditions DESC
+
+Задача 4.5.2
+
+SELECT b.total_amount
+FROM dst_project.bookings b
+ORDER BY b.total_amount
+LIMIT 1
+
+Задача 4.5.3
+
+SELECT bp.seat_no
+FROM dst_project.tickets t
+JOIN dst_project.boarding_passes bp ON t.ticket_no = bp.ticket_no
+WHERE t.passenger_id = '4313 788533'
+
+Задача 5.1.1
+
+SELECT a.airport_code,
+       a.airport_name
+FROM dst_project.airports a
+WHERE a.city = 'Anapa' -- AAQ
+
+SELECT count(f.flight_id) flight_cnt
+FROM dst_project.flights f
+WHERE arrival_airport = 'AAQ'
+  AND date_part('Year', f.actual_arrival) = '2017'
+
+Задача 5.1.2
+
+SELECT count(f.flight_id) flight_cnt
+FROM dst_project.flights f
+WHERE departure_airport = 'AAQ'
+  AND date_trunc('month', f.actual_arrival) in ('2017-01-01',
+                                                '2017-02-01',
+                                                '2017-12-01')
+
+Задача 5.1.3
+
+SELECT count(f.flight_id) flight_cnt
+FROM dst_project.flights f
+WHERE departure_airport = 'AAQ'
+  AND f.status = 'Cancelled'
+
+Задача 5.1.4
+
+SELECT a.airport_code,
+       a.airport_name
+FROM dst_project.airports a
+WHERE a.city = 'Moscow' -- 'SVO', 'VKO', 'DME'
+
+SELECT count(f.flight_id) flight_cnt
+FROM dst_project.flights f
+WHERE departure_airport = 'AAQ'
+  AND arrival_airport not in ('SVO',
+                              'VKO',
+                              'DME')
+
+Задача 5.1.5
+
+SELECT ac.model,
+       count(DISTINCT s.seat_no) seat_cnt
+FROM dst_project.seats s
+JOIN dst_project.flights f ON s.aircraft_code = f.aircraft_code
+JOIN dst_project.aircrafts ac ON s.aircraft_code = ac.aircraft_code
+WHERE f.departure_airport = 'AAQ'
+GROUP BY ac.model
+ORDER BY seat_cnt DESC
+
+
+Запрос на получение данных по проекту
+
+/*Посчитаем сколько билетов разного класса было продано
+и какая выручка получилась от их продажи. Сначала
+класс эконом.*/ 
+
+WITH t2 AS
+  (SELECT tf.flight_id,
+          count(tf.fare_conditions) econ_sold,
+          sum(tf.amount) amount_sum_econ
+   FROM dst_project.ticket_flights tf
+   WHERE fare_conditions = 'Economy'
+   GROUP BY tf.flight_id), 
+
+/* Статистику по классу комфорт мы считать не будем,
+так как их нет на рейсах летающих из Анапы.*/ /*Посчитаем статитику по бизнесс классу.*/ 
+
+t4 AS
+  (SELECT tf.flight_id,
+          count(tf.fare_conditions) bus_sold,
+          sum(tf.amount) amount_sum_bus
+   FROM dst_project.ticket_flights tf
+   WHERE fare_conditions = 'Business'
+   GROUP BY tf.flight_id), 
+
+/*Считаем сколько мест различного класса в разных моделях
+самолетов. Сначала эконом класс.*/ 
+
+s1 AS
+  (SELECT s.aircraft_code,
+          count(s.fare_conditions) econ_seats
+   FROM dst_project.seats s
+   WHERE s.fare_conditions = 'Economy'
+   GROUP BY s.aircraft_code), 
+
+/* Количество мест класса комфорт мы считать не будем,
+так как их не на рейсах летающих из Анапы.
+
+Количество мест бизнесс класса в самолетах.*/ 
+
+s3 AS
+  (SELECT s.aircraft_code,
+          count(s.fare_conditions) bus_seats
+   FROM dst_project.seats s
+   WHERE s.fare_conditions = 'Business'
+   GROUP BY s.aircraft_code),
+
+/*Запрос на получение данных по аэропорту Анапа*/
+a1 as (SELECT a.city departure_city,
+              a.latitude departure_latitude,
+              a.longitude departure_longitude
+FROM dst_project.airports a
+WHERE a.airport_code = 'AAQ'),
+
+/*Из интернета: расход топлива Боинга 733 2600 кг топлива/час
+                                         Сухого     1700 кг топлива/час
+Стоимость заправки авиационного топлива в 2017 году около 50000 р/тонна
+предположим другие накладные расходы составляют еще такую же сумму
+Итого получаем стоимость 1 минуты полета Боинга 4333р
+                                         Сухого  2833р*/
+f1 as (SELECT 'SU9' aircraft_code,
+        2833 fly_cost
+union
+SELECT '733' aircraft_code,
+        4333 fly_cost)
+
+/*Выполняем основной запрос на получение статистики полетов
+из Анапы в зимнее время 2017 года. Основные данные берем
+из таблицы flights, дополняя статиску из aircrafts и airports,
+а так же из таблиц расчетов статистики по проданным билетам
+и характеристикам салона самолетов.*/
+
+SELECT f.flight_id, -- идентификатор рейса
+ t2.econ_sold, -- количество проданных билетов эконом класса
+ t2.amount_sum_econ, -- выручка с продажи билетов эконом класса
+ t4.bus_sold, -- количество проданных билетов бизнесс класса
+ t4.amount_sum_bus, -- выручка с продажи билетов класса бизнесс эконом
+ t2.econ_sold + t4.bus_sold total_tickets_sold, -- общее количество проданных билетов
+ t2.amount_sum_econ + t4.amount_sum_bus total_amount, -- общая выручка с продажи билетов
+ f.scheduled_departure, -- время вылета по расписанию
+ f.scheduled_arrival, -- время прилета по расписанию
+ date_part('hour', (f.scheduled_arrival - f.scheduled_departure)) * 60 + 
+ date_part('minute', (f.scheduled_arrival - f.scheduled_departure)) scheduled_time_flight, -- время полета по расписанию
+ f.actual_departure, -- фактическое время вылета
+ f.actual_arrival, -- фактическое время прилета
+ date_part('hour', (f.actual_arrival - f.actual_departure)) * 60 + 
+ date_part('minute', (f.actual_arrival - f.actual_departure)) actual_time_flight, -- фактическое время полета
+ a1.departure_city, -- город отправления
+ a1.departure_latitude, -- широта аэропорта отправления
+ a1.departure_longitude, -- долгота аэропорта отправления
+ a.city arrival_cit, -- город прибытия
+ a.latitude arrival_latitude, -- широта аэропорта прбытия
+ a.longitude arrival_longitude, -- долгота аэропорта прибытия
+ ac.model, -- модель самолета
+ s1.econ_seats, -- количество мест эконом класса в самолете
+ s3.bus_seats, -- количество мест эконом бизнесс в самолете
+ s1.econ_seats + s3.bus_seats total_seats, -- общее количество мест в самолете
+ ac.range, -- дальность полета самолета
+ f1.fly_cost,
+ f1.fly_cost * (date_part('hour', (f.actual_arrival - f.actual_departure)) * 60 + 
+    date_part('minute', (f.actual_arrival - f.actual_departure))) flight_cost,
+ (t2.econ_sold::numeric / s1.econ_seats::numeric * 100) occup_econ, -- процент заполняемости мест эконом класса
+ (t4.bus_sold::numeric / s3.bus_seats::numeric * 100) occup_bus, -- процент заполняемости мест бизнесс класса
+ ((t2.econ_sold + t4.bus_sold)::numeric / (s1.econ_seats + s3.bus_seats)::numeric * 100) occup_total, -- процент общей заполняемости
+ (t2.amount_sum_econ + t4.amount_sum_bus) - f1.fly_cost * (date_part('hour', (f.actual_arrival - f.actual_departure)) * 60 + 
+    date_part('minute', (f.actual_arrival - f.actual_departure))) profit,
+ ((t2.amount_sum_econ + t4.amount_sum_bus) - f1.fly_cost * (date_part('hour', (f.actual_arrival - f.actual_departure)) * 60 + 
+    date_part('minute', (f.actual_arrival - f.actual_departure)))) / ( t2.amount_sum_econ + t4.amount_sum_bus) * 100 profitability
+FROM dst_project.flights f
+LEFT JOIN t2 ON f.flight_id = t2.flight_id
+LEFT JOIN t4 ON f.flight_id = t4.flight_id
+LEFT JOIN dst_project.aircrafts ac ON f.aircraft_code = ac.aircraft_code
+LEFT JOIN s1 ON f.aircraft_code = s1.aircraft_code
+LEFT JOIN s3 ON f.aircraft_code = s3.aircraft_code
+LEFT JOIN dst_project.airports a ON f.arrival_airport = a.airport_code
+LEFT JOIN f1 on f.aircraft_code = f1.aircraft_code,
+a1
+WHERE departure_airport = 'AAQ'
+  AND (date_trunc('month', scheduled_departure) in ('2017-01-01',
+                                                    '2017-02-01',
+                                                    '2017-12-01'))
+  AND status not in ('Cancelled')
+order by profitability
