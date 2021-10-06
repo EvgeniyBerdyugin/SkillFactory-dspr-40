@@ -115,7 +115,7 @@ libarchive-c @ file:///tmp/build/80754af9/python-libarchive-c_1617780486945/work
 llvmlite==0.36.0
 locket==0.2.1
 lxml @ file:///C:/ci/lxml_1616443455957/work
-MarkupSafe==2.0.1
+MarkupSafe==1.1.1
 matplotlib @ file:///C:/ci/matplotlib-suite_1613408055530/work
 mccabe==0.6.1
 menuinst==1.4.16
@@ -251,6 +251,9 @@ three-merge @ file:///tmp/build/80754af9/three-merge_1607553261110/work
 tifffile @ file:///tmp/build/80754af9/tifffile_1619636090847/work
 toml @ file:///tmp/build/80754af9/toml_1616166611790/work
 toolz @ file:///home/linux1/recipes/ci/toolz_1610987900194/work
+torch==1.9.1
+torchaudio==0.9.1
+torchvision==0.10.1
 tornado @ file:///C:/ci/tornado_1606942392901/work
 tqdm @ file:///tmp/build/80754af9/tqdm_1615925068909/work
 traitlets @ file:///home/ktietz/src/ci/traitlets_1611929699868/work
