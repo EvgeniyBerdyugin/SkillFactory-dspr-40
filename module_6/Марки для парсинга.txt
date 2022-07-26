@@ -1,0 +1,12 @@
+BMW           4473
+VOLKSWAGEN    4404
+NISSAN        4393
+MERCEDES      4180
+TOYOTA        3913
+AUDI          3421
+MITSUBISHI    2843
+SKODA         2741
+VOLVO         1463
+HONDA         1150
+INFINITI       871
+LEXUS          834
