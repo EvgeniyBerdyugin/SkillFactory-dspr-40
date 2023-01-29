@@ -24,9 +24,9 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
 
-    city = pd.read_pickle(os.path.join('../', 'data', 'city.pkl'))
-    state = pd.read_pickle(os.path.join('../', 'data', 'state.pkl'))
-    zipcode = pd.read_pickle(os.path.join('../', 'data', 'zipcode.pkl'))
+    city = pd.read_pickle(os.path.join('data', 'city.pkl'))
+    state = pd.read_pickle(os.path.join('data', 'state.pkl'))
+    zipcode = pd.read_pickle(os.path.join('data', 'zipcode.pkl'))
 
     enter_dict = {'beds': args.b,
                   'year_built': args.yb,
