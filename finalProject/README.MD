@@ -1,7 +1,7 @@
 # SkillFactory-dspr-40 finalProject
 
 - Большие файлы можно скачать тут
-- https://drive.google.com/file/d/16EQAkXXee39yju2XW7T7ZeHayBbNK-wY/view?usp=share_link
+https://drive.google.com/file/d/16EQAkXXee39yju2XW7T7ZeHayBbNK-wY/view?usp=share_link
 
 Докер с приложением можно запустить:
 docker pull negativegreep/final_project
