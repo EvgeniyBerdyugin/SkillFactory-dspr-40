@@ -6,10 +6,10 @@ import pandas as pd
 import warnings
 warnings.simplefilter('ignore')
 
-df = pd.read_pickle(os.path.join('../src', 'data', 'test_data10000.pkl'))
-city = pd.read_pickle(os.path.join('../src', 'data', 'city.pkl'))
-state = pd.read_pickle(os.path.join('../src', 'data', 'state.pkl'))
-zipcode = pd.read_pickle(os.path.join('../src', 'data', 'zipcode.pkl'))
+df = pd.read_pickle(os.path.join('../', 'data', 'test_data10000.pkl'))
+city = pd.read_pickle(os.path.join('../', 'data', 'city.pkl'))
+state = pd.read_pickle(os.path.join('../', 'data', 'state.pkl'))
+zipcode = pd.read_pickle(os.path.join('../', 'data', 'zipcode.pkl'))
 
 
 def mape(y_true, y_pred):
