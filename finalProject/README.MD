@@ -1,5 +1,5 @@
 # SkillFactory-dspr-40 finalProject
-
+Проект по постоению модели предикта стоимости недвижимости и ее деплой.
 ### Большие файлы можно скачать тут
 * https://drive.google.com/file/d/16EQAkXXee39yju2XW7T7ZeHayBbNK-wY/view?usp=share_link
 
